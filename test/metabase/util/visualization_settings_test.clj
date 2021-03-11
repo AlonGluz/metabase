@@ -4,10 +4,10 @@
             [java-time :as t]))
 
 (deftest name-for-column
-  (let [viz-settings {:column_settings {(keyword "[\"ref\",[\"field\",14,null]]") {:column_title "Renamed Column"
-                                                                                   :date_style   "YYYY/MM/D"
-                                                                                   :time_enabled "minutes"
-                                                                                   :time_style   "k:mm"}}}
+  (let [viz-settings {:column_settings {"[\"ref\",[\"field\",14,null]]" {:column_title "Renamed Column"
+                                                                         :date_style   "YYYY/MM/D"
+                                                                         :time_enabled "minutes"
+                                                                         :time_style   "k:mm"}}}
         col          {:id 14}]
     (testing "name-from-col-settings works as expected"
              (is (= "Renamed Column"
@@ -36,15 +36,15 @@
         col-ref-id   (format "[\"ref\",[\"field\",%s,null]]" field-id-1)
         col-ref-id-2 (format "[\"ref\",[\"field\",%s,null]]" field-id-2)
         col-ref-expr "[\"ref\",[\"expression\",\"CREATED_AT_MINUS_ONE_DAY\"]]"
-        viz-settings {:column_settings {(keyword col-ref-id)   {:column_title "Grand Total"}
-                                        (keyword col-ref-expr) {:date_style   "YYYY/M/D"
-                                                                :time_enabled "minutes"
-                                                                :time_style   "k:mm"}
-                                        (keyword col-ref-id-2) {:decimals          2
-                                                                :number_separators ".,"
-                                                                :number_style      "decimal"
-                                                                :prefix            "<"
-                                                                :suffix            ">"}}}
+        viz-settings {:column_settings {col-ref-id   {:column_title "Grand Total"}
+                                        col-ref-expr {:date_style   "YYYY/M/D"
+                                                      :time_enabled "minutes"
+                                                      :time_style   "k:mm"}
+                                        col-ref-id-2 {:decimals          2
+                                                      :number_separators ".,"
+                                                      :number_style      "decimal"
+                                                      :prefix            "<"
+                                                      :suffix            ">"}}}
         id-col       {:description     "The total billed amount."
                       :semantic_type   nil,
                       :table_id        37,

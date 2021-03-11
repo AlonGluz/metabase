@@ -44,14 +44,14 @@
                             {(s/required-key :column_settings) ColSettings})))
 
 (defn- field-id-key [col]
-  (keyword (format "[\"ref\",[\"field\",%d,null]]" (:id col))))
+  (format "[\"ref\",[\"field\",%d,null]]" (:id col)))
 
 (defn- expression-key [col]
-  (keyword (format "[\"ref\",[\"expression\",\"%s\"]]" (:expression_name col))))
+  (format "[\"ref\",[\"expression\",\"%s\"]]" (:expression_name col)))
 
 (defn- find-col-setting [{:keys [column_settings]} col]
-  (or ((field-id-key col) column_settings)
-      ((expression-key col) column_settings)))
+  (or (get column_settings (field-id-key col))
+      (get column_settings (expression-key col))))
 
 ;;export type DateStyle =
 ;  | "M/D/YYYY"
@@ -83,13 +83,12 @@
                    "minutes"      ""
                    "seconds"      ":ss"
                    "milliseconds" ":ss:SSS")
-        time-str (when (some? time_enabled)
-                   (case time_style
-                     nil      nil
-                     ;; 17:24 (with seconds/millis as per time-enabled)
-                     "k:mm"   (format "H:mm%s" sub-day)
-                     ;; 5:24 PM (with seconds/millis as per above)
-                     "h:mm A" (format "h:mm%s a" sub-day)))]
+        time-str (case time_style
+                   nil      nil
+                   ;; 17:24 (with seconds/millis as per time-enabled)
+                   "k:mm"   (format "H:mm%s" sub-day)
+                   ;; 5:24 PM (with seconds/millis as per above)
+                   "h:mm A" (format "h:mm%s a" sub-day))]
     (format "%s%s" dt-str (if (some? time-str) (str ", " time-str) ""))))
 
 (defn date-format-fn [{:keys [date_style date_abbreviate time_style time_enabled]}]
@@ -107,8 +106,8 @@
                        ""
                        ;; literals in DecimalFormat need single quoted, with a literal single quote needing escaped
                        (format "'%s'" (str/replace val "'" "''"))))
-        dec-sep    (or (first number_separators) "")
-        group-sep  (or (last number_separators) "")
+        dec-sep    (or (first number_separators) ".")
+        group-sep  (or (last number_separators) ",")
         dec-part   (when (pos-int? decimals) (apply str (conj (repeat decimals \0) dec-sep)))
         formatter  (DecimalFormat. (format "%s%s###%s%s" (quote-lit prefix) group-sep dec-part (quote-lit suffix)))]
     #(.format formatter %)))
@@ -148,21 +147,11 @@
                                                                (number-format-fn col-settings))))))
       fmt-md)))
 
-(s/defn col-settings-key
-  "Gets the key that would be mapped under :column_settings for the given col (a Column domain object)."
-  [col :- Column]
-  (keyword (format "[\"ref\",[\"field\",%d,null]]" (:id col))))
-
-(s/defn col-settings :- (s/maybe ColSetting)
-  "Gets the column_settings value mapped by the given col (a Column domain object) as a key (a Column domain object)."
-  [{:keys [column_settings] :as visualization-settings} :- VizSettings col :- Column]
-  (get column_settings (col-settings-key col)))
-
 (s/defn name-from-col-settings [visualization-settings :- VizSettings col  :- Column] :- (s/maybe s/Str)
-  (let [settings (col-settings visualization-settings col)]
+  (let [settings (find-col-setting visualization-settings col)]
     (:column_title settings)))
 
 (s/defn date-format-from-col-settings [visualization-settings :- VizSettings col  :- Column] :- (s/maybe s/Str)
-  (let [settings (col-settings visualization-settings col)]
+  (let [settings (find-col-setting visualization-settings col)]
     (if-let [date-style (:date_style settings)]
       (str date-style (if-let [time-style (:time_style settings)] (str " " time-style) "")))))
