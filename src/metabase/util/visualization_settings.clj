@@ -132,6 +132,7 @@
   [pred fmt-fn]
   (always-dispatch-on-first-val-pred pred fmt-fn common/format-value))
 
+;; TODO: add spec fdef here for stuff in metabase.shared.visualization
 (defn make-format-metadata [visualization-settings col]
   ;; always provide a default format fn
   (let [fmt-md {:format-fn common/format-value}]
