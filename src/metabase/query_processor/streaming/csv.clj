@@ -22,7 +22,7 @@
     (reify i/StreamingResultsWriter
       (begin! [_ {{:keys [cols indexed-column-viz-settings]} :data}]
         (letfn [(col-nm-fn [idx col]
-                  (if-some [col-title (:column_title (nth indexed-column-viz-settings idx))]
+                  (if-some [col-title (::viz/column-title (nth indexed-column-viz-settings idx))]
                     col-title
                     ((some-fn :display_name :name) col)))]
           (csv/write-csv writer [(map-indexed col-nm-fn cols)]))
@@ -30,7 +30,7 @@
 
       (write-row! [_ row _ {{:keys [cols indexed-column-viz-settings]} :data}]
         (letfn [(fmt-row [idx val]
-                  (let [fmt-fn (:format-fn (nth indexed-column-viz-settings idx))]
+                  (let [fmt-fn (::viz/format-fn (nth indexed-column-viz-settings idx))]
                     (fmt-fn val)))]
           (csv/write-csv writer [(map-indexed fmt-row row)])
           (.flush writer)))

@@ -3,10 +3,6 @@
   (:require [clojure.string :as str]
             [clojure.spec.alpha :as s]))
 
-(s/def ::visualization-settings-v1 inst?)
-
-(s/def ::visualization-settings-v2 inst?)
-
 (defn- field-id-key [col]
   (keyword (format "[\"ref\",[\"field\",%d,null]]" (:id col))))
 
@@ -15,9 +11,9 @@
 
 (def ^:private col-key-regex #"\[\"ref\",\[(?:\"field\",\d+,null|\"expression\",\".+\")\]\]")
 
-(s/def ::column-setting-v1-key (s/and keyword? #(->> %
-                                                     (name)
-                                                     (re-matches col-key-regex))))
+(s/def ::column-setting-v1-key #(->> %
+                                     (name)
+                                     (re-matches col-key-regex)))
 
 (s/def ::column_title string?)
 
@@ -34,16 +30,18 @@
 
 (s/def ::column-setting-v1-date-format
   (s/keys :req-un [::date_style ::time_style ::time_enabled]
-          :opt-un [::column_title]))8
+          :opt-un [::column_title]))
 
 (s/def ::column-setting-v1-number-format
   (s/keys :req-un [::decimals ::number_separators ::number_style]
           :opt-un [::column_title ::prefix ::suffix]))
 
 (s/def ::column-setting-v1-value (s/or ::date-column-format ::column-setting-v1-date-format
-                                       ::number-column-format ::column-setting-v1-number-format))
+                                       ::number-column-format ::column-setting-v1-number-format
+                                       ::no-formatting (s/keys :opt-un [::column_title])))
 
 (s/def ::column_settings (s/map-of ::column-setting-v1-key ::column-setting-v1-value))
 
 (s/def ::visualization_settings (s/keys :opt-un [::column_settings]))
 
+(s/def ::visualization-settings-v1 ::visualization_settings)
