@@ -228,7 +228,7 @@ cache-keys-drivers-with-fallback-keys: &CacheKeyDrivers_WithFallbackKeys
 
 # Key for frontend client built by uberjar-build-frontend step
 cache-key-frontend: &CacheKeyFrontend
-  key: v1-{{ checksum ".CACHE-PREFIX" }}-frontend-<< parameters.edition >>-{{ checksum ".FRONTEND-CHECKSUMS" }}
+  key: v1-{{ checksum ".CACHE-PREFIX" }}-frontend-{{ checksum ".FRONTEND-CHECKSUMS" }}
 
 # Key for uberjar built by build-uberjar
 cache-key-uberjar: &CacheKeyUberjar
