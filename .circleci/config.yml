@@ -1155,22 +1155,20 @@ workflows:
             - be-deps
 
       - build-uberjar-drivers:
-          name: build-uberjar-drivers-<< matrix.edition >>
+          name: build-uberjar-drivers
           requires:
             - be-deps
-          <<: *Matrix
 
       - build-uberjar-frontend:
-          name: build-uberjar-frontend-<< matrix.edition >>
+          name: build-uberjar-frontend
           requires:
             - fe-deps
-          <<: *Matrix
 
       - build-uberjar:
           name: build-uberjar-<< matrix.edition >>
           requires:
-            - build-uberjar-drivers-<< matrix.edition >>
-            - build-uberjar-frontend-<< matrix.edition >>
+            - build-uberjar-drivers
+            - build-uberjar-frontend
           <<: *Matrix
 
       - fe-deps:
